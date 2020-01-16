@@ -16,7 +16,7 @@
 		sf::Color(220, 0, 255)
 	};
 
-	int index = rand() % 4;
+	int index = rand() % 5;
 
 	color = colors[index];
 

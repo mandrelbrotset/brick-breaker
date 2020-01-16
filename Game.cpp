@@ -9,9 +9,9 @@
 #include <unordered_map>
 #include <cstdlib>
 
-int BLOCKS_PER_ROW = 20;
-int NUM_OF_ROWS = 5;
-int NUM_OF_BLOCKS = 40;
+int blocks_per_row = 20;
+int num_of_rows = 5;
+int num_of_blocks = 40;
 
 Game::Game(std::string windowTitle, int windowWidth, int windowHeight) 
 {
@@ -24,7 +24,7 @@ Game::Game(std::string windowTitle, int windowWidth, int windowHeight)
     std::unordered_map<BlockKey, Block, KeyHasher> blockMap;
     std::unordered_map <BlockKey, Block, KeyHasher>::iterator b_it;
  
-    float blockSide = window.getSize().x / BLOCKS_PER_ROW;
+    float blockSide = window.getSize().x / blocks_per_row;
 
     Ball ball(int(blockSide / 4), sf::Color::White, window.getSize());
 
@@ -37,11 +37,11 @@ Game::Game(std::string windowTitle, int windowWidth, int windowHeight)
     srand(time(NULL));
 
     // generate random positions for blocks
-    for (int i = 0; i < NUM_OF_BLOCKS; i++)
+    for (int i = 0; i < num_of_blocks; i++)
     {
         BlockKey key;
-        key.x = (rand() % BLOCKS_PER_ROW) * blockSide;
-        key.y = (rand() % NUM_OF_ROWS) * blockSide;
+        key.x = (rand() % blocks_per_row) * blockSide;
+        key.y = (rand() % num_of_rows) * blockSide;
 
         Block tempBlock = Block(key.x, key.y, blockSide);
 
@@ -49,7 +49,7 @@ Game::Game(std::string windowTitle, int windowWidth, int windowHeight)
         // if block wasn't added increase number of blocks to generate
         if (ret.second == false) 
         {
-            NUM_OF_BLOCKS += 1;
+            num_of_blocks += 1;
         }
     }
     
@@ -71,10 +71,11 @@ Game::Game(std::string windowTitle, int windowWidth, int windowHeight)
 
         ball.draw(window);
         paddle.draw(window);
-        
+       
 
         // Show(draw) the blocks
-        for (b_it = blockMap.begin(); b_it != blockMap.end();  ++b_it) 
+        // for (b_it = blockMap.begin(); b_it != blockMap.end();  ++b_it) 
+        for (b_it = blockMap.begin(); b_it != blockMap.end(); )
         {
             b_it->second.draw(window);
 
@@ -86,6 +87,8 @@ Game::Game(std::string windowTitle, int windowWidth, int windowHeight)
             float ball_y = ball.getPosition().y;
             float ball_radius = ball.getRadius();
 
+            bool collision = false;
+
             // collision under the block
             if (int(ball_x + ball_radius) >= int(block_x) &&
                 int(ball_x) <= int(block_x + block_side))
@@ -93,63 +96,68 @@ Game::Game(std::string windowTitle, int windowWidth, int windowHeight)
                 if (int(ball_y) == int(block_y + block_side)) 
                 {
                     ball.changeY_direction();
+                    collision = true;
                 }
                 else if (int(block_y + block_side) >= int(ball_y) &&
                     int(block_y + block_side) <= int(ball_y + ball_radius/2))
                 {
                     ball.changeY_direction();
+                    collision = true;
                 }
-            }
+            
 
-            // collision on top the block
-            if (int(ball_x + ball_radius) >= int(block_x) &&
-                int(ball_x) <= int(block_x + block_side))
-            {
-                if (int(ball_y + ball_radius * 2) == int(block_y))
+                // collision on top the block
+                else if (int(ball_y + ball_radius * 2) == int(block_y))
                 {
                     ball.changeY_direction();
-                    std::cout << "yay top" << std::endl;
+                    collision = true;
                 }
                 else if (int(block_y) >= int(ball_y + ball_radius * 2) &&
                         int(block_y) <= int(ball_y + ball_radius))
                 {
                     ball.changeY_direction();
-                    std::cout << "uh top" << std::endl;
+                    collision = true;
                 }
             }
 
             // collision to left of the block
-            if (int(ball_y + ball_radius) >= int(block_y) &&
+            else if (int(ball_y + ball_radius) >= int(block_y) &&
                 int(ball_y) <= int(block_y + block_side))
             {
                 if (int(ball_x + ball_radius * 2) == int(block_x))
                 {
                     ball.changeX_direction();
+                    collision = true;
                 }
                 else if (int(block_x) >= int(ball_x + ball_radius) && 
                         int(block_x) <= int(ball_x + ball_radius * 2))
                 {
                     ball.changeX_direction();
+                    collision = true;
                 }
-            }
 
-            // collision to right of the block
-            if (int(ball_y + ball_radius) >= int(block_y) &&
-                int(ball_y) <= int(block_y + block_side))
-            {
-                if (int(ball_x) == int(block_x + block_side))
+                // collision to right of the block
+                else if (int(ball_x) == int(block_x + block_side))
                 {
-                    std::cout << "block right" << std::endl;
                     ball.changeX_direction();
+                    collision = true;
                 }
                 else if (int(block_x + block_side) >= int(ball_x) && 
                         int(block_x + block_side) <= int(ball_x + ball_radius/2))
                 {
-                    std::cout << "uh uh right" << std::endl;
                     ball.changeX_direction();
+                    collision = true;
                 }
             }
-            
+
+            if (collision == true) 
+            {
+                blockMap.erase(b_it++);
+            }
+            else
+            {
+                ++b_it;
+            }
         }
 
         // End drawing
