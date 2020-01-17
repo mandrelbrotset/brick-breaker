@@ -2,11 +2,11 @@
 #include <cstdlib>
 #include <iostream>
 
-Ball::Ball(int ballRadius, sf::Color ballColor, sf::Vector2u window_size) : circle(sf::CircleShape()) 
+Ball::Ball(int ballRadius, sf::Color ballColor, sf::Vector2u windowSize, float windowOffset_y) : circle(sf::CircleShape())
 {
 	radius = ballRadius;
 	color = ballColor;
-	
+	window_offset_y = windowOffset_y;
 	ball_speed = 120;
 
 	circle.setRadius(radius);
@@ -22,8 +22,8 @@ Ball::Ball(int ballRadius, sf::Color ballColor, sf::Vector2u window_size) : circ
 		x_direction = 1;
 	}
 	
-	float x_position = (rand() % window_size.x) / 1.0f;
-	float y_position = rand() % window_size.y + float(window_size.y/2);
+	float x_position = (rand() % windowSize.x) / 1.0f;
+	float y_position = rand() % windowSize.y + float(windowSize.y/2) + window_offset_y;
 
 	circle.setPosition(x_position, y_position);
 }
@@ -41,11 +41,11 @@ void Ball::update(sf::RenderWindow& window, sf::Time deltaTime) {
 	float window_height = (float)window.getSize().y;
 
 	// handle collision with wall
-	if (ball_x + move_x <= 0 || ball_x + move_x + radius * 2 >= window_width) 
+	if (ball_x + move_x <= 0 || ball_x + move_x + radius * 2 >= window_width)
 	{
 		x_direction *= -1;
 	}
-	else if (ball_y + move_y <= 0) 
+	else if (ball_y + move_y <= window_offset_y)
 	{
 		y_direction *= -1;
 	}

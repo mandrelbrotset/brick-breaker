@@ -5,7 +5,7 @@
 class Ball
 {
 public:
-	Ball(int ballRadius, sf::Color ballColor, sf::Vector2u windowSize);
+	Ball(int ballRadius, sf::Color ballColor, sf::Vector2u windowSize, float windowOffset_y);
 	void update(sf::RenderWindow& window, sf::Time delta_time);
 	void draw(sf::RenderWindow& window);
 	int getRadius();
@@ -21,5 +21,6 @@ private:
 	int ball_speed;
 	int x_direction;
 	int y_direction;
+	float window_offset_y;
 };
 
